@@ -1,30 +1,36 @@
-char *strtok(char *str, const char *delim) {
-  static char *last = NULL;
+#include "s21_string.h"
+
+static char *s21_token_pos = S21_NULL;
+
+char *s21_strtok(char *str, const char *delim) {
   char *token_start;
 
-  if (str != NULL) {
-    last = str;
-  }
-  if (last == NULL || *last == '\0') {
-    return NULL;
-  }
-  while (*last && strchr(delim, *last)) {
-    last++;
+  if (str != S21_NULL) {
+    s21_token_pos = str;
   }
 
-  if (*last == '\0') {
-    return NULL;
+  if (s21_token_pos == S21_NULL || *s21_token_pos == '\0') {
+    return S21_NULL;
   }
 
-  token_start = last;
-
-  while (*last && !strchr(delim, *last)) {
-    last++;
+  while (*s21_token_pos && s21_strchr(delim, *s21_token_pos)) {
+    s21_token_pos++;
   }
 
-  if (*last) {
-    *last = '\0';
-    last++;
+  if (*s21_token_pos == '\0') {
+    return S21_NULL;
   }
+
+  token_start = s21_token_pos;
+
+  while (*s21_token_pos && !s21_strchr(delim, *s21_token_pos)) {
+    s21_token_pos++;
+  }
+
+  if (*s21_token_pos) {
+    *s21_token_pos = '\0';
+    s21_token_pos++;
+  }
+
   return token_start;
 }

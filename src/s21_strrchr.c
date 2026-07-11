@@ -1,5 +1,4 @@
-#define S21_NULL ((void *)0)
-typedef unsigned long s21_size_t;
+#include "s21_string.h"
 char *s21_strrchr(const char *str, int c) {
   const char *last = S21_NULL;
   while (*str) {
