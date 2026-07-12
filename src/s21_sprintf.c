@@ -1,5 +1,5 @@
-#include <stdarg.h>
 #include <math.h>
+#include <stdarg.h>
 #include <stdint.h>
 
 #include "s21_string.h"
@@ -165,7 +165,6 @@ static void parse_precision(const char **format, va_list args,
       }
     }
   }
-
 }
 
 static void parse_length(const char **format, FormatSpec *spec) {
@@ -295,9 +294,9 @@ static void handle_int(char **str, va_list args, FormatSpec *spec) {
 
   IntSizes sizes;
   char buf[64];
-  unsigned long long abs_num =
-      (num < 0) ? (unsigned long long)(-(num + 1)) + 1ULL
-                : (unsigned long long)num;
+  unsigned long long abs_num = (num < 0)
+                                   ? (unsigned long long)(-(num + 1)) + 1ULL
+                                   : (unsigned long long)num;
 
   sizes.len = int_to_str(abs_num, buf, 10, 0);
   if (num == 0 && spec->is_precision_set && spec->precision == 0) {
@@ -434,7 +433,8 @@ static void handle_general(char **str, va_list args, FormatSpec *spec,
   if (num_len == 0) {
     int precision = normalize_float_precision(spec, 1);
 
-    int exponent = (abs_num == 0.0L) ? 0 : get_rounded_exponent_for_g(abs_num, precision);
+    int exponent =
+        (abs_num == 0.0L) ? 0 : get_rounded_exponent_for_g(abs_num, precision);
     int use_scientific = (exponent < -4 || exponent >= precision);
 
     if (use_scientific) {
@@ -518,17 +518,17 @@ static void read_int_arg(va_list args, FormatSpec *spec, long long *num) {
 static void read_uint_arg(va_list args, FormatSpec *spec,
                           unsigned long long *num) {
   switch (spec->length) {
-    case 'h': 
-     *num = (unsigned short)va_arg(args, int);
-     break;
+    case 'h':
+      *num = (unsigned short)va_arg(args, int);
+      break;
 
     case 'l':
-     *num = va_arg(args, unsigned long);
-     break;
+      *num = va_arg(args, unsigned long);
+      break;
 
     default:
-     *num = va_arg(args, unsigned int);
-     break;
+      *num = va_arg(args, unsigned int);
+      break;
   }
 }
 
@@ -632,13 +632,15 @@ static int format_fixed_abs(long double num, int precision, int hash, char *out,
 
   if (precision > 0) {
     char frac_buf[1024];
-    int frac_len = int_part_to_str(rounded_frac, frac_buf, (int)sizeof(frac_buf));
+    int frac_len =
+        int_part_to_str(rounded_frac, frac_buf, (int)sizeof(frac_buf));
     int leading_zeros = precision - frac_len;
     if (rounded_frac < 1.0L) leading_zeros = precision;
 
     for (int i = 0; i < leading_zeros && pos < out_cap; i++) out[pos++] = '0';
     if (rounded_frac >= 1.0L) {
-      for (int i = 0; i < frac_len && pos < out_cap; i++) out[pos++] = frac_buf[i];
+      for (int i = 0; i < frac_len && pos < out_cap; i++)
+        out[pos++] = frac_buf[i];
     }
   }
 
@@ -730,8 +732,7 @@ static int append_exponent(char *out, int pos, int exponent, int uppercase,
   if (pos < out_cap) out[pos++] = uppercase ? 'E' : 'e';
   if (pos < out_cap) out[pos++] = (exponent < 0) ? '-' : '+';
 
-  unsigned int exp_abs =
-      (unsigned int)((exponent < 0) ? -exponent : exponent);
+  unsigned int exp_abs = (unsigned int)((exponent < 0) ? -exponent : exponent);
   char exp_buf[32];
   int exp_len = int_to_str(exp_abs, exp_buf, 10, 0);
 
