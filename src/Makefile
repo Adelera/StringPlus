@@ -10,8 +10,8 @@ SRCS = s21_memchr.c s21_memcmp.c s21_memcpy.c s21_memset.c \
        s21_to_upper.c s21_to_lower.c s21_insert.c s21_trim.c
 OBJS = $(SRCS:.c=.o)
 
-TEST_SRC = test.c
-TEST_NAME = test
+TEST_SRC = s21_test.c
+TEST_NAME = s21_test
 
 # Цель по умолчанию
 all: $(NAME)
