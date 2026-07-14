@@ -3,11 +3,15 @@ CFLAGS = -Wall -Werror -Wextra -std=c11 -I.
 CHECK_FLAGS = $(shell pkg-config --cflags --libs check)
 
 NAME = s21_string.a
-SRCS = s21_memchr.c s21_memcmp.c s21_memcpy.c s21_memset.c s21_strlen.c s21_strchr.c s21_strncat.c s21_strncmp.c s21_strncpy.c s21_sprintf.c
+SRCS = s21_memchr.c s21_memcmp.c s21_memcpy.c s21_memset.c \
+       s21_strlen.c s21_strchr.c s21_strncat.c s21_strncmp.c s21_strncpy.c \
+       s21_strcspn.c s21_strerror.c s21_strpbrk.c s21_strrchr.c s21_strstr.c \
+       s21_strtok.c s21_sprintf.c s21_sscanf.c \
+       s21_to_upper.c s21_to_lower.c s21_insert.c s21_trim.c
 OBJS = $(SRCS:.c=.o)
 
-TEST_SRC = test_runner.c
-TEST_NAME = test_runner
+TEST_SRC = test.c
+TEST_NAME = test
 
 # Цель по умолчанию
 all: $(NAME)

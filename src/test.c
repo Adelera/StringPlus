@@ -523,58 +523,305 @@ START_TEST(test_sprintf_ignore_L_for_int) {
 }
 END_TEST
 
+// ============ ТЕСТЫ ФУНКЦИЙ ПОЛИНЫ============
+
+START_TEST(test_strcspn_basic) {
+  ck_assert_int_eq(s21_strcspn("abcde", "dx"), strcspn("abcde", "dx"));
+}
+END_TEST
+
+START_TEST(test_strcspn_no_match) {
+  ck_assert_int_eq(s21_strcspn("hello", "XYZ"), strcspn("hello", "XYZ"));
+}
+END_TEST
+
+START_TEST(test_strerror_known) {
+  ck_assert_str_eq(s21_strerror(2), strerror(2));
+}
+END_TEST
+
+START_TEST(test_strerror_unknown) {
+  ck_assert_str_eq(s21_strerror(-1), "Unknown error -1");
+}
+END_TEST
+
+START_TEST(test_strpbrk_found) {
+  const char *s = "abcdef";
+  ck_assert_ptr_eq(s21_strpbrk(s, "xdy"), strpbrk(s, "xdy"));
+}
+END_TEST
+
+START_TEST(test_strpbrk_not_found) {
+  ck_assert_ptr_eq(s21_strpbrk("abcdef", "XYZ"), S21_NULL);
+}
+END_TEST
+
+START_TEST(test_strrchr_found) {
+  const char *s = "abca";
+  ck_assert_ptr_eq(s21_strrchr(s, 'a'), strrchr(s, 'a'));
+}
+END_TEST
+
+START_TEST(test_strrchr_null_terminator) {
+  const char *s = "abc";
+  ck_assert_ptr_eq(s21_strrchr(s, '\0'), strrchr(s, '\0'));
+}
+END_TEST
+
+START_TEST(test_strstr_found) {
+  const char *s = "hello world";
+  ck_assert_ptr_eq(s21_strstr(s, "world"), strstr(s, "world"));
+}
+END_TEST
+
+START_TEST(test_strstr_empty_needle) {
+  const char *s = "hello";
+  ck_assert_ptr_eq(s21_strstr(s, ""), strstr(s, ""));
+}
+END_TEST
+
+START_TEST(test_strtok_basic) {
+  char src1[] = "a,b,,c";
+  ck_assert_str_eq(s21_strtok(src1, ","), "a");
+  ck_assert_str_eq(s21_strtok(S21_NULL, ","), "b");
+  ck_assert_str_eq(s21_strtok(S21_NULL, ","), "c");
+  ck_assert_ptr_eq(s21_strtok(S21_NULL, ","), S21_NULL);
+}
+END_TEST
+
+START_TEST(test_s21_sscanf_basic) {
+  int a1 = 0, b1 = 0;
+  int a2 = 0, b2 = 0;
+  int r1 = s21_sscanf("12 34", "%d %d", &a1, &b1);
+  int r2 = sscanf("12 34", "%d %d", &a2, &b2);
+  ck_assert_int_eq(r1, r2);
+  ck_assert_int_eq(a1, a2);
+  ck_assert_int_eq(b1, b2);
+}
+END_TEST
+
+START_TEST(test_s21_sscanf_float_and_word) {
+  float f1 = 0.0f, f2 = 0.0f;
+  char s1[32] = {0}, s2[32] = {0};
+  int r1 = s21_sscanf("3.14 test", "%f %s", &f1, s1);
+  int r2 = sscanf("3.14 test", "%f %s", &f2, s2);
+  ck_assert_int_eq(r1, r2);
+  ck_assert_float_eq_tol(f1, f2, 1e-6);
+  ck_assert_str_eq(s1, s2);
+}
+END_TEST
+
+START_TEST(test_s21_sscanf_i_decimal_octal_hex) {
+  int d1 = 0, o1 = 0, h1 = 0;
+  int d2 = 0, o2 = 0, h2 = 0;
+  int r1 = s21_sscanf("42 077 0x10", "%i %i %i", &d1, &o1, &h1);
+  int r2 = sscanf("42 077 0x10", "%i %i %i", &d2, &o2, &h2);
+  ck_assert_int_eq(r1, r2);
+  ck_assert_int_eq(d1, d2);
+  ck_assert_int_eq(o1, o2);
+  ck_assert_int_eq(h1, h2);
+}
+END_TEST
+
+START_TEST(test_s21_sscanf_unsigned_octal_hex) {
+  unsigned int u1 = 0, o1 = 0, x1 = 0;
+  unsigned int u2 = 0, o2 = 0, x2 = 0;
+  int r1 = s21_sscanf("15 17 10", "%u %o %x", &u1, &o1, &x1);
+  int r2 = sscanf("15 17 10", "%u %o %x", &u2, &o2, &x2);
+  ck_assert_int_eq(r1, r2);
+  ck_assert_int_eq((int)u1, (int)u2);
+  ck_assert_int_eq((int)o1, (int)o2);
+  ck_assert_int_eq((int)x1, (int)x2);
+}
+END_TEST
+
+START_TEST(test_s21_sscanf_length_modifiers_int) {
+  short s1 = 0, s2 = 0;
+  long l1 = 0, l2 = 0;
+  int r1 = s21_sscanf("-12 123456", "%hd %ld", &s1, &l1);
+  int r2 = sscanf("-12 123456", "%hd %ld", &s2, &l2);
+  ck_assert_int_eq(r1, r2);
+  ck_assert_int_eq((int)s1, (int)s2);
+  ck_assert_int_eq((int)l1, (int)l2);
+}
+END_TEST
+
+START_TEST(test_s21_sscanf_length_modifiers_unsigned) {
+  unsigned short s1 = 0, s2 = 0;
+  unsigned long l1 = 0, l2 = 0;
+  int r1 = s21_sscanf("12 123456", "%hu %lu", &s1, &l1);
+  int r2 = sscanf("12 123456", "%hu %lu", &s2, &l2);
+  ck_assert_int_eq(r1, r2);
+  ck_assert_int_eq((int)s1, (int)s2);
+  ck_assert_int_eq((int)l1, (int)l2);
+}
+END_TEST
+
+START_TEST(test_s21_sscanf_float_lengths) {
+  long double ld1 = 0.0L, ld2 = 0.0L;
+  double d1 = 0.0, d2 = 0.0;
+  float f1 = 0.0f, f2 = 0.0f;
+  int r1 = s21_sscanf("2.5e2 3.25 4.75", "%Le %lf %f", &ld1, &d1, &f1);
+  int r2 = sscanf("2.5e2 3.25 4.75", "%Le %lf %f", &ld2, &d2, &f2);
+  ck_assert_int_eq(r1, r2);
+  ck_assert(fabsl(ld1 - ld2) < 1e-12L);
+  ck_assert_double_eq_tol(d1, d2, 1e-12);
+  ck_assert_float_eq_tol(f1, f2, 1e-6);
+}
+END_TEST
+
+START_TEST(test_s21_sscanf_width_and_suppress) {
+  char s1[16] = {0}, s2[16] = {0};
+  int r1 = s21_sscanf("123 abc", "%*d %2s", s1);
+  int r2 = sscanf("123 abc", "%*d %2s", s2);
+  ck_assert_int_eq(r1, r2);
+  ck_assert_str_eq(s1, s2);
+}
+END_TEST
+
+START_TEST(test_s21_sscanf_width_for_char) {
+  char c1[3] = {0}, c2[3] = {0};
+  int r1 = s21_sscanf("XYZ", "%2c", c1);
+  int r2 = sscanf("XYZ", "%2c", c2);
+  ck_assert_int_eq(r1, r2);
+  ck_assert_mem_eq(c1, c2, 2);
+}
+END_TEST
+
+START_TEST(test_s21_sscanf_pointer) {
+  void *p = S21_NULL;
+  int r = s21_sscanf("10", "%p", &p);
+  ck_assert_int_eq(r, 1);
+  ck_assert_ptr_eq(p, (void *)16);
+}
+END_TEST
+
+START_TEST(test_s21_sscanf_percent_literal) {
+  int x1 = 0, x2 = 0;
+  int r1 = s21_sscanf("25%", "%d%%", &x1);
+  int r2 = sscanf("25%", "%d%%", &x2);
+  ck_assert_int_eq(r1, r2);
+  ck_assert_int_eq(x1, x2);
+}
+END_TEST
+
+START_TEST(test_s21_sscanf_n_specifier_behavior) {
+  int value = 0;
+  int pos = 0;
+  int r = s21_sscanf("123 abc", "%d%n %s", &value, &pos, (char[8]){0});
+  ck_assert_int_eq(value, 123);
+  ck_assert_int_eq(pos, 4);
+  ck_assert_int_eq(r, 3);
+}
+END_TEST
+
+START_TEST(test_to_upper_basic) {
+  char *res = (char *)s21_to_upper("Abc 123 z");
+  ck_assert_ptr_ne(res, S21_NULL);
+  ck_assert_str_eq(res, "ABC 123 Z");
+  free(res);
+}
+END_TEST
+
+START_TEST(test_to_upper_null) {
+  ck_assert_ptr_eq(s21_to_upper(S21_NULL), S21_NULL);
+}
+END_TEST
+
+START_TEST(test_to_lower_basic) {
+  char *res = (char *)s21_to_lower("AbC 123 Z");
+  ck_assert_ptr_ne(res, S21_NULL);
+  ck_assert_str_eq(res, "abc 123 z");
+  free(res);
+}
+END_TEST
+
+START_TEST(test_to_lower_null) {
+  ck_assert_ptr_eq(s21_to_lower(S21_NULL), S21_NULL);
+}
+END_TEST
+
+START_TEST(test_insert_middle) {
+  char *res = (char *)s21_insert("HelloWorld", " ", 5);
+  ck_assert_ptr_ne(res, S21_NULL);
+  ck_assert_str_eq(res, "Hello World");
+  free(res);
+}
+END_TEST
+
+START_TEST(test_insert_out_of_range) {
+  ck_assert_ptr_eq(s21_insert("abc", "Z", 4), S21_NULL);
+}
+END_TEST
+
+START_TEST(test_trim_default_spaces) {
+  char *res = (char *)s21_trim(" \tHello\n ", S21_NULL);
+  ck_assert_ptr_ne(res, S21_NULL);
+  ck_assert_str_eq(res, "Hello");
+  free(res);
+}
+END_TEST
+
+START_TEST(test_trim_custom_chars) {
+  char *res = (char *)s21_trim("xxHelloxx", "x");
+  ck_assert_ptr_ne(res, S21_NULL);
+  ck_assert_str_eq(res, "Hello");
+  free(res);
+}
+END_TEST
+
 // ============ ЗАПУСК ТЕСТОВ ============
 
 int main(void) {
   Suite *suite = suite_create("s21_string");
   TCase *tcase_core = tcase_create("core");
 
-  // Добавляем тесты для memchr
+  // тесты для memchr
   tcase_add_test(tcase_core, test_memchr_found);
   tcase_add_test(tcase_core, test_memchr_not_found);
   tcase_add_test(tcase_core, test_memchr_zero_n);
   tcase_add_test(tcase_core, test_memchr_boundary);
   tcase_add_test(tcase_core, test_memchr_null_char);
 
-  // Добавляем тесты для memcmp
+  // тесты для memcmp
   tcase_add_test(tcase_core, test_memcmp_equal);
   tcase_add_test(tcase_core, test_memcmp_first_less);
   tcase_add_test(tcase_core, test_memcmp_zero_n);
   tcase_add_test(tcase_core, test_memcmp_binary_data);
 
-  // Добавляем тесты для memcpy
+  // тесты для memcpy
   tcase_add_test(tcase_core, test_memcpy_basic);
   tcase_add_test(tcase_core, test_memcpy_zero_n);
   tcase_add_test(tcase_core, test_memcpy_binary);
 
-  // Добавляем тесты для memset
+  // тесты для memset
   tcase_add_test(tcase_core, test_memset_basic);
   tcase_add_test(tcase_core, test_memset_zero_n);
   tcase_add_test(tcase_core, test_memset_full);
 
-  // Добавляем тесты для strlen
+  // тесты для strlen
   tcase_add_test(tcase_core, test_strlen_basic);
   tcase_add_test(tcase_core, test_strlen_empty);
   tcase_add_test(tcase_core, test_strlen_spaces);
 
-  // Добавляем тесты для strchr
+  // тесты для strchr
   tcase_add_test(tcase_core, test_strchr_found);
   tcase_add_test(tcase_core, test_strchr_not_found);
   tcase_add_test(tcase_core, test_strchr_null_terminator);
   tcase_add_test(tcase_core, test_strchr_first_char);
 
-  // Добавляем тесты для strncat
+  // тесты для strncat
   tcase_add_test(tcase_core, test_strncat_partial);
   tcase_add_test(tcase_core, test_strncat_full_src);
   tcase_add_test(tcase_core, test_strncat_zero_n);
 
-  // Добавляем тесты для strncmp
+  // тесты для strncmp
   tcase_add_test(tcase_core, test_strncmp_equal_prefix);
   tcase_add_test(tcase_core, test_strncmp_diff_before_n);
   tcase_add_test(tcase_core, test_strncmp_diff_after_n);
   tcase_add_test(tcase_core, test_strncmp_zero_n);
 
-  // Добавляем тесты для strncpy
+  // тесты для strncpy
   tcase_add_test(tcase_core, test_strncpy_truncate);
   tcase_add_test(tcase_core, test_strncpy_pad_with_zeros);
   tcase_add_test(tcase_core, test_strncpy_zero_n);
@@ -602,6 +849,37 @@ int main(void) {
   tcase_add_test(tcase_core, test_sprintf_trailing_percent);
   tcase_add_test(tcase_core, test_sprintf_int_long_min);
   tcase_add_test(tcase_core, test_sprintf_ignore_L_for_int);
+  tcase_add_test(tcase_core, test_strcspn_basic);
+  tcase_add_test(tcase_core, test_strcspn_no_match);
+  tcase_add_test(tcase_core, test_strerror_known);
+  tcase_add_test(tcase_core, test_strerror_unknown);
+  tcase_add_test(tcase_core, test_strpbrk_found);
+  tcase_add_test(tcase_core, test_strpbrk_not_found);
+  tcase_add_test(tcase_core, test_strrchr_found);
+  tcase_add_test(tcase_core, test_strrchr_null_terminator);
+  tcase_add_test(tcase_core, test_strstr_found);
+  tcase_add_test(tcase_core, test_strstr_empty_needle);
+  tcase_add_test(tcase_core, test_strtok_basic);
+  tcase_add_test(tcase_core, test_s21_sscanf_basic);
+  tcase_add_test(tcase_core, test_s21_sscanf_float_and_word);
+  tcase_add_test(tcase_core, test_s21_sscanf_i_decimal_octal_hex);
+  tcase_add_test(tcase_core, test_s21_sscanf_unsigned_octal_hex);
+  tcase_add_test(tcase_core, test_s21_sscanf_length_modifiers_int);
+  tcase_add_test(tcase_core, test_s21_sscanf_length_modifiers_unsigned);
+  tcase_add_test(tcase_core, test_s21_sscanf_float_lengths);
+  tcase_add_test(tcase_core, test_s21_sscanf_width_and_suppress);
+  tcase_add_test(tcase_core, test_s21_sscanf_width_for_char);
+  tcase_add_test(tcase_core, test_s21_sscanf_pointer);
+  tcase_add_test(tcase_core, test_s21_sscanf_percent_literal);
+  tcase_add_test(tcase_core, test_s21_sscanf_n_specifier_behavior);
+  tcase_add_test(tcase_core, test_to_upper_basic);
+  tcase_add_test(tcase_core, test_to_upper_null);
+  tcase_add_test(tcase_core, test_to_lower_basic);
+  tcase_add_test(tcase_core, test_to_lower_null);
+  tcase_add_test(tcase_core, test_insert_middle);
+  tcase_add_test(tcase_core, test_insert_out_of_range);
+  tcase_add_test(tcase_core, test_trim_default_spaces);
+  tcase_add_test(tcase_core, test_trim_custom_chars);
 
   suite_add_tcase(suite, tcase_core);
 
